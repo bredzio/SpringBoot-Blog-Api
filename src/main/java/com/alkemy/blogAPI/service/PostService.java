@@ -29,6 +29,7 @@ public class PostService {
     
     @Transactional
     public Post savePost(Post post){
+        post.setEnabled(true);
         return postRepository.save(post);
     }
     

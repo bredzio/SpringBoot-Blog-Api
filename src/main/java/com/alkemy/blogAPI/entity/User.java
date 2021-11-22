@@ -1,5 +1,6 @@
 package com.alkemy.blogAPI.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +37,7 @@ public class User implements UserDetails{
     @Enumerated(EnumType.STRING)
     private RoleUser roleUser;
     
+    @JsonManagedReference
     @OneToMany(mappedBy="user")
     private List<Post> posts;
     

@@ -16,8 +16,13 @@ public class CategoryService {
     private CategoryRepository categoryRepository;
     
     @Transactional
-    public void createCategory(Category category){
+    public void saveCategory(Category category){
         categoryRepository.save(category);
+    }
+    
+    @Transactional
+    public Iterable<Object[]> getCategories(){
+        return categoryRepository.getCategories();
     }
     
     @Transactional

@@ -5,35 +5,61 @@ import com.alkemy.blogAPI.repository.UserRepository;
 import com.alkemy.blogAPI.security.token.TokenConfirmation;
 import com.alkemy.blogAPI.security.token.TokenConfirmationService;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.UUID;
+import javax.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Service
 @AllArgsConstructor
 public class UserService implements UserDetailsService{
     private final static String userNotFound = "No se encontró usuario con ese email %s";
-
+    
+    @Autowired
     private final UserRepository userRepository;
+    
+    @Autowired
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenConfirmationService tokenConfirmationService;
 
     
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(String.format(userNotFound, email)));    
+        User user = userRepository.findByEmail(email);
+        
+        GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER"+ user.getRoleUser());
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        
+        HttpSession sesion = attr.getRequest().getSession(true);
+  
+        sesion.setAttribute("userId", user.getUserId());
+        sesion.setAttribute("email", user.getEmail());
+        
+        //eturn userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(String.format(userNotFound, email)));    }
+        return new User(user.getEmail(),user.getPassword(),user.getRoleUser());
+        
+    }
+    
+    public User findByEmail(String email){
+        return userRepository.findByEmail(email);
     }
     
     public String enableUser(User user) {
-        boolean existUser = userRepository.findByEmail(user.getEmail()).isPresent();
+        /*boolean existUser = userRepository.findByEmail(user.getEmail()).isPresent();
 
         if (existUser) {
             throw new IllegalStateException("Email ok");
-        }
+        }*/
 
         String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
 
