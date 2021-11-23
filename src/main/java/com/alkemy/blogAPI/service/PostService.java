@@ -2,6 +2,8 @@ package com.alkemy.blogAPI.service;
 
 import com.alkemy.blogAPI.entity.Post;
 import com.alkemy.blogAPI.repository.PostRepository;
+
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,7 +36,7 @@ public class PostService {
     }
     
     @Transactional
-    public Iterable<Object[]> findByTitle(String title){
+    public Optional<Post> findByTitle(String title){
         return postRepository.findByTitle(title);
     }
     
@@ -49,7 +51,7 @@ public class PostService {
     }
     
     @Transactional
-    public Iterable<Object[]> getPostOrderDESC(){
+    public List<Post> getPostOrderDESC(){
         return postRepository.getPostsOrderDESC();
         
     }

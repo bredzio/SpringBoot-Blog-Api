@@ -5,7 +5,6 @@ import com.alkemy.blogAPI.repository.UserRepository;
 import com.alkemy.blogAPI.security.token.TokenConfirmation;
 import com.alkemy.blogAPI.security.token.TokenConfirmationService;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.UUID;
 import javax.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
@@ -36,6 +35,9 @@ public class UserService implements UserDetailsService{
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email);
+        if(!userRepository.existsUsuarioByEmail(email).isPresent()){
+            throw new UsernameNotFoundException(String.format(userNotFound, email));
+        }
         
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER"+ user.getRoleUser());
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
@@ -45,9 +47,7 @@ public class UserService implements UserDetailsService{
         sesion.setAttribute("userId", user.getUserId());
         sesion.setAttribute("email", user.getEmail());
         
-        //eturn userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(String.format(userNotFound, email)));    }
         return new User(user.getEmail(),user.getPassword(),user.getRoleUser());
-        
     }
     
     public User findByEmail(String email){
@@ -55,11 +55,11 @@ public class UserService implements UserDetailsService{
     }
     
     public String enableUser(User user) {
-        /*boolean existUser = userRepository.findByEmail(user.getEmail()).isPresent();
+        boolean existUser = userRepository.existsUsuarioByEmail(user.getEmail()).isPresent();
 
         if (existUser) {
             throw new IllegalStateException("Email ok");
-        }*/
+        }
 
         String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
 

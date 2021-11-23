@@ -2,11 +2,7 @@ package com.alkemy.blogAPI.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.List;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.SQLDelete;
 
@@ -18,6 +14,7 @@ public class Category {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Integer categoryId;
     private String name;
+    private boolean enabled;
     
     @JsonManagedReference
     @OneToMany(mappedBy="category")

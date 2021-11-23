@@ -3,8 +3,7 @@ package com.alkemy.blogAPI.service;
 import com.alkemy.blogAPI.entity.Category;
 import com.alkemy.blogAPI.entity.Post;
 import com.alkemy.blogAPI.repository.CategoryRepository;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +16,7 @@ public class CategoryService {
     
     @Transactional
     public void saveCategory(Category category){
+        category.setEnabled(true);
         categoryRepository.save(category);
     }
     
