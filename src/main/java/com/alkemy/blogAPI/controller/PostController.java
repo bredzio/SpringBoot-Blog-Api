@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -51,42 +53,40 @@ public class PostController {
     }
     
     @PostMapping()
-    public String save(@ModelAttribute Post post, HttpServletRequest request, HttpSession session)throws IOException{
+    public ResponseEntity<?> save(@ModelAttribute Post post, HttpServletRequest request, HttpSession session)throws IOException{
         boolean res=util.regexImage(post.getImage());
         
         try{
             if(!res){
-                throw new Exception("Url no corresponde a una imagen");
+                return new ResponseEntity<>("Url no corresponde a una imagen", HttpStatus.BAD_REQUEST);
             }
             post.setImage(post.getImage());
             String email=(String) session.getAttribute("email");
             post.setUser(userService.findByEmail(email));
             postService.savePost(post);
-            
-            return "Post número "+post.getPostId()+" guardado";
+            return new ResponseEntity<>("Post creado con exito", HttpStatus.CREATED);
         }catch(Exception e){
-            return e.getMessage();
-
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
     }
     
     
     @DeleteMapping(path = "delete/:{id}")
-    public String delete(@PathVariable("id") Integer id){
+    public ResponseEntity<?> delete(@PathVariable("id") Integer id){
         try {
             postService.delete(id);
-            return "Post número "+id+" eliminado";
+            return new ResponseEntity<>("Post número "+id+" eliminado",HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return "Post número "+id+" no pudo ser eliminado";
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
     }
     
     @PutMapping(path = "/:{id}")
-    public String patch(@ModelAttribute Post postDetail,HttpServletRequest request, @PathVariable("id") Integer id){
+    public  ResponseEntity<?> patch(@ModelAttribute Post postDetail,HttpServletRequest request, @PathVariable("id") Integer id){
         Optional<Post> post = postService.findById(id);
         try {
             if(!post.isPresent()){
-                return ("Post número "+id+" no encontrado");
+                return new ResponseEntity<>("Post número "+id+" no encontrado",HttpStatus.NOT_FOUND);
             }
             
             post.get().setTitle(postDetail.getTitle());
@@ -95,9 +95,9 @@ public class PostController {
             post.get().setCategory(postDetail.getCategory());
             
             postService.savePost(post.get());
-            return "Post número "+id+" modificado";
+            return new ResponseEntity<>("Post número "+id+" modificado",HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return e.getMessage();
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
     }
     
