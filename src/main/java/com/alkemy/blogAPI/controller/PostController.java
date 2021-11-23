@@ -18,15 +18,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/posts")
 public class PostController {
 
+    @Autowired
     PostService postService;
-    UserService userService;
-    CategoryService categoryService;
 
-    public PostController(PostService postService, UserService userService, CategoryService categoryService) {
-        this.postService = postService;
-        this.userService = userService;
-        this.categoryService = categoryService;
-    }
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    CategoryService categoryService;
 
     @Autowired
     private Util util;

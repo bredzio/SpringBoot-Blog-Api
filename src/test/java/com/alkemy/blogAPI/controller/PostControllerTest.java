@@ -10,7 +10,10 @@ import com.alkemy.blogAPI.util.Util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -18,21 +21,27 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
+
 class PostControllerTest {
 
-    PostService postServiceMock = Mockito.mock(PostService.class);
-    CategoryService categoryServiceMock=Mockito.mock(CategoryService.class);
-    UserService userServiceMock=Mockito.mock(UserService.class);
+    @Mock
+    private PostService PostServiceMock;
 
-
-    @Autowired
-    PostController postController=new PostController(postServiceMock,userServiceMock,categoryServiceMock);
+    @InjectMocks
+    PostController postController;
 
     @Autowired
     private Util util;
+
+    private Post mockPost;
+    private Category deporte;
+    private User user;
 
     private List<Post> lista;
 
@@ -40,15 +49,17 @@ class PostControllerTest {
 
     @BeforeEach
     void setUp() {
-        Category deporte = new Category();
+        MockitoAnnotations.initMocks(this);
+
+        deporte = new Category();
         deporte.setCategoryId(1);
         deporte.setName("Deporte");
 
-        User user = new User();
+        user = new User();
         user.setUserId(1);
         user.setEmail("brunoredzio@hotmail.com");
 
-        Post mockPost = new Post();
+        mockPost = new Post();
         mockPost.setContent("Desarollando mi api");
         mockPost.setImage("http://www.avajava.com/images/avajavalogo.jpg");
         mockPost.setTitle("Mi api");
@@ -64,17 +75,12 @@ class PostControllerTest {
 
         postDeports.add(mockPost);
 
-        Mockito.when(categoryServiceMock.getPostsForCategory(1)).thenReturn(postDeports);
-        Mockito.when(postServiceMock.findById(1)).thenReturn(Optional.of(mockPost));
-        Mockito.when(postServiceMock.findById(2)).thenReturn(Optional.of(mockPost2));
-        Mockito.when(postServiceMock.findByTitle("Mi api")).thenReturn(Optional.of(mockPost));
-        Mockito.when(userServiceMock.findByEmail("brunoredzio@hotmail.com")).thenReturn(user);
-
     }
 
     @Test
     void getListPosts() {
-        postController.getListPosts();
+        when(PostServiceMock.getPostOrderDESC()).thenReturn(Arrays.asList(mockPost));
+        assertNotNull(postController.getListPosts());
     }
 
     @Test
